@@ -1,0 +1,49 @@
+*,
+*::after,
+*::before {
+	margin: 0;
+	padding: 0;
+	box-sizing: border-box;
+}
+
+.slide-show {
+	width: 100%;
+	height: 300px;
+	overflow: hidden;
+	&__img--container {
+		height: 100%;
+		position: relative;
+		margin: 0 auto;
+		overflow: hidden;
+		border: 1px solid red;
+		display: flex;
+		align-items: center;
+		width: 525px;
+		&__list {
+			position: relative;
+			// height: 100%;
+			height: 64px;
+			width: 100%;
+			list-style: none;
+			transition: transform 2s ease-in-out;
+
+			&--item {
+				position: absolute;
+				top: 0;
+				left: 0;
+				width: 64px;
+				height: 64px;
+				border-radius: 50%;
+				display: block;
+				background-color: red;
+				transition: transform 2s ease-in-out;
+				& img {
+					width: 100%;
+					height: 100%;
+					object-fit: cover;
+					border-radius: 50%;
+				}
+			}
+		}
+	}
+}
