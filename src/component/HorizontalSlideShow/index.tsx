@@ -12,6 +12,7 @@ const HorizontalSlideShow: React.FC<HorizontalSlideShowProps> = ({ imgWidth, gut
 	const [currentImageIdx, setCurrentImageIdx] = useState(Math.ceil(imgShow / 2) - 1)
 	const [totalWidth, setTotalWidth] = useState(0)
 	const [dataImgs, setDataImgs] = useState(images)
+	const [count, setCount] = useState(0)
 
 	useEffect(() => {
 		const imgs = Array.from(listContainerRef.current!.children)
@@ -36,6 +37,8 @@ const HorizontalSlideShow: React.FC<HorizontalSlideShowProps> = ({ imgWidth, gut
 	}
 
 	const slideShowClickHandler = (e: any) => {
+		setCount((state) => ++state)
+		listContainerRef.current!.style.transform = `translateX(0)`
 		const targetImg = e.target.closest('li')
 		console.log('targetImg', targetImg)
 		const targetIdx = Array.from(listContainerRef!.current!.children).findIndex((img) => img === targetImg)
@@ -46,7 +49,6 @@ const HorizontalSlideShow: React.FC<HorizontalSlideShowProps> = ({ imgWidth, gut
 
 		moveToImg(listContainerRef, currentImg, targetImg, targetIdx, curIdx)
 		// setDataImgs(newArray!)
-		// listContainerRef.current!.style.transform = `translateX(0)`
 	}
 
 	const moveToImg = (list: any, currentImg: any, targetImg: any, targetIdx: number, curIdx: number) => {
@@ -56,7 +58,12 @@ const HorizontalSlideShow: React.FC<HorizontalSlideShowProps> = ({ imgWidth, gut
 		console.log('targetIdx', targetIdx)
 		console.log('curIdx', curIdx)
 		console.log('sadas', targetImg!.style.left.replace('px', ''))
-		const leftCount = `calc(50% - ${(targetIdx - curIdx) * imgWidth}px)`
+		let leftCount = ''
+		if (count === 0) {
+			leftCount = `${(targetImg!.style.left.replace('px', '') - (targetIdx - curIdx) * imgWidth) / 2}px`
+		} else {
+			leftCount = `${targetImg!.style.left.replace('px', '') / 2 - (targetIdx - curIdx) * imgWidth}px`
+		}
 		list.current!.style.transform = `translateX(-${leftCount})`
 		// list.current!.style.transform = `translateX(-${(listContainerRef!.current!.getBoundingClientRect().width) / 2})`
 		// list.current!.style.transform = `translateX(-${listContainerRef!.current!.getBoundingClientRect().width / 2})`
@@ -66,7 +73,7 @@ const HorizontalSlideShow: React.FC<HorizontalSlideShowProps> = ({ imgWidth, gut
 			if (imgShow < dataImgs.length && targetIdx > curIdx) {
 				// newArray = moveElement(dataImgs, idx, dataImgs.length - idx - 1)
 				//@ts-ignore
-				// imgs[idx].style.right = imgWidth * (idx + 1) + 'px'
+				imgs[idx].style.right = imgWidth * (idx + 1) + 'px'
 				// dataImgs.splice(dataImgs.length - idx - 1, 0, dataImgs.splice(idx, 1)[0])
 			}
 		})
