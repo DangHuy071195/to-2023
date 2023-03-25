@@ -63,7 +63,7 @@
 	flex-direction: column;
 	width: 20vw;
 	position: absolute;
-	top: 76px;
+	top: calc(2.4rem + 9vh);
 	left: 50%;
 	transform: translateX(-50%);
 	min-width: 20rem;
