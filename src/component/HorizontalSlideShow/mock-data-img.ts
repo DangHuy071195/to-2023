@@ -1,29 +1,26 @@
-import GoogleImg from '../../resources/images/google.png'
+import ChromeImg from '../../resources/images/chrome.png'
 import MozillaImg from '../../resources/images/mozilla.jpg'
 import SafariImg from '../../resources/images/safari.png'
 import OperaImg from '../../resources/images/opera.jpg'
+import IEImg from '../../resources/images/i-e.jpeg'
+import UCImg from '../../resources/images/uc.jpeg'
 import BraveImg from '../../resources/images/braves.jpg'
-import BraveImg1 from '../../resources/images/braves.jpg'
-import BraveImg2 from '../../resources/images/braves.jpg'
-import { ReactNode } from 'react'
 export interface ImageDataI {
-	cover: string
+	url: string
 	title: string
 	children: string[] | []
 }
-const images: ImageDataI[] = [
+export const mockImages: ImageDataI[] = [
 	{
-		cover: GoogleImg,
+		url: ChromeImg,
 		title: 'google',
 		children: ['browser', 'cloud', 'images'],
 	},
-	{ cover: MozillaImg, title: 'mozilla', children: ['addon', 'tools', 'cloud'] },
-	{ cover: SafariImg, title: 'SafariImg', children: ['addon', 'tools', 'cloud'] },
-	{ cover: OperaImg, title: 'OperaImg', children: ['addon', 'tools', 'cloud'] },
-	{ cover: BraveImg, title: 'BraveImg', children: ['addon', 'tools', 'cloud'] },
-	{ cover: BraveImg1, title: 'BraveImg1', children: ['addon', 'tools', 'cloud'] },
-	{ cover: BraveImg2, title: 'BraveImg2', children: ['addon', 'tools', 'cloud'] },
+	{ url: MozillaImg, title: 'mozilla', children: ['addon', 'tools', 'cloud'] },
+	{ url: SafariImg, title: 'Safari', children: ['addon', 'tools', 'cloud'] },
+	{ url: OperaImg, title: 'Opera', children: ['addon', 'tools', 'cloud'] },
+	{ url: IEImg, title: 'Edge 11', children: ['addon', 'tools', 'cloud'] },
+	{ url: UCImg, title: 'UC', children: ['addon', 'tools', 'cloud'] },
+	{ url: BraveImg, title: 'Brave', children: ['addon', 'tools', 'cloud'] },
 ]
-
-export default images
 

@@ -8,8 +8,8 @@ const Information: React.FC<InfoProps> = ({ title, items }) => {
 		<div className='information'>
 			<h3 className='information__title'>{title}</h3>
 			<ul className='information__list'>
-				{items?.map((str) => (
-					<li>{str}</li>
+				{items?.map((str: string, idx: number) => (
+					<li key={idx}>- {str}</li>
 				))}
 			</ul>
 		</div>

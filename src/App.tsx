@@ -1,21 +1,44 @@
 import React from 'react'
-import './slide-show.style.scss'
 import HorizontalSlideShow from './component/HorizontalSlideShow'
 import Card from './component/Card'
-import images from './component/HorizontalSlideShow/mock-data-img'
+import ResponsiveContainer from './component/HorizontalSlideShow/ReponsiveContainer'
+import { mockImages } from './component/HorizontalSlideShow/mock-data-img'
+import Typewriter from 'typewriter-effect'
+
+import './main.style.scss'
 
 function App() {
+	const ref = React.useRef<typeof HorizontalSlideShow>()
 	return (
-		<div className='App'>
-			<HorizontalSlideShow
-				gutter={24}
-				carouselWidth={1440}
-				slideWidth={750}
-				imgShow={5}
-				maxVisibleSlide={5}
-				slideComponent={Card}
-				currentVisibleSlide={5}
-				data={images}
+		<div className='container'>
+			<div className='typewriter'>
+				<Typewriter
+					options={{
+						strings: ['Horizontal Slide show', 'Responsive'],
+						autoStart: true,
+						loop: true,
+					}}
+				/>
+			</div>
+			<ResponsiveContainer
+				carouselRef={ref}
+				render={(width: any, carouselRef: any) => {
+					console.log('width in render...', width)
+					let currentVisibleSlide = 5
+					if (width <= 410) currentVisibleSlide = 3
+					return (
+						<HorizontalSlideShow
+							ref={carouselRef}
+							carouselWidth={width}
+							slideWidth={64}
+							maxVisibleSlide={5}
+							slideComponent={Card}
+							currentVisibleSlide={currentVisibleSlide}
+							data={mockImages}
+							fadeDistance={0.5}
+						/>
+					)
+				}}
 			/>
 		</div>
 	)

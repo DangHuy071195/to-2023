@@ -1,6 +1,7 @@
-import React, { useRef, useEffect, useState } from 'react'
-import { slideInfoMapI, StaticSlideInfoI } from '../../interfaces'
-import images, { ImageDataI } from './mock-data-img'
+import React, { useCallback, useEffect, useRef, useState } from 'react'
+import { slideInfoMapI } from '../../interfaces'
+import Information from '../Card/Information'
+import { ImageDataI } from './mock-data-img'
 
 export interface RenderedSlideI {
 	position: number
@@ -14,9 +15,7 @@ export interface RenderedSlideI {
 
 interface HorizontalSlideShowProps {
 	slideWidth: number
-	gutter: number
 	carouselWidth: number
-	imgShow: number
 	customScales?: number[]
 	fadeDistance?: number
 	maxVisibleSlide: number
@@ -25,42 +24,36 @@ interface HorizontalSlideShowProps {
 	slideComponent: any
 	data: ImageDataI[]
 	height?: number
+	ref: any
 }
 
-const HorizontalSlideShow: React.FC<HorizontalSlideShowProps> = ({
-	slideWidth,
-	gutter,
-	carouselWidth,
-	currentVisibleSlide,
-	customScales,
-	fadeDistance,
-	maxVisibleSlide,
-	currentVisibleSlide: currentVisibleDisplaySlide,
-	customTransition,
-	slideComponent: Component,
-	data,
-	height,
-}) => {
+const HorizontalSlideShow: React.FC<HorizontalSlideShowProps> = (props) => {
+	const {
+		slideWidth,
+		carouselWidth,
+		customScales,
+		fadeDistance,
+		maxVisibleSlide,
+		currentVisibleSlide: currentVisibleDisplaySlide,
+		customTransition,
+		slideComponent: Component,
+		data,
+		height,
+	} = props
+
 	const listContainerRef = useRef<HTMLUListElement | null>(null)
-	const [count, setCount] = useState(0)
-	const [init, setInit] = useState(true)
+
+	const [init] = useState(true)
 	const [renderedSlides, setRenderedSlides] = useState<RenderedSlideI[]>([])
 	const [slideInfoMap, setSlideInfoMap] = useState<any>()
-	const [sortedSlideInfo, setSortedSlideInfo] = useState<StaticSlideInfoI[]>([])
 	const [slidePerSide, setSlidePerSide] = useState(0)
 	const [keyCount, setKeyCount] = useState(data.length)
 	const [addedSlide, setAddedSlide] = useState(0)
-	const [centerPosition, setCenterPosition] = useState(0)
-	const [maxZIndex, setMaxZIndex] = useState(100)
 	const [renderedSlidePerSide, setRenderedSlidePerSide] = useState(0)
-	const [tempShift, setTempShift] = useState(false)
-	const [swipeStarted, setSwipeStarted] = useState(false)
-
-	const [swipRight, setSwipRight] = useState(false)
-	const listRef = useRef<HTMLDivElement | null>(null)
 	const [listHeight, setListHeight] = useState(height || 0)
+	const [currentSlideCenter, setCurrentSlideCenter] = useState<RenderedSlideI>()
 
-	const initializeProperties = () => {
+	const initializeProperties = useCallback(() => {
 		const currentVisibleSlides = currentVisibleDisplaySlide || maxVisibleSlide
 		const visibleSlidePerSide = (currentVisibleSlides - 1) / 2
 		const slidePerSide = Math.max(visibleSlidePerSide + 1, 1)
@@ -83,7 +76,6 @@ const HorizontalSlideShow: React.FC<HorizontalSlideShowProps> = ({
 		const newCenterDataIndex = init ? 0 : newRenderedSlides[newCenterSlideRelativeIndex]?.dataIndex
 
 		let filledWidth = 0
-		const centerPosition = carouselWidth / 2 - slideWidth / 2
 		for (let absIndex = 0; absIndex <= slidePerSide; absIndex++) {
 			const offset = offsets[absIndex]
 			const slideScale = scales[absIndex]
@@ -165,27 +157,12 @@ const HorizontalSlideShow: React.FC<HorizontalSlideShowProps> = ({
 		sortedSlideInfo.sort((slide1, slide2) => {
 			return slide1.position - slide2.position
 		})
-		return {
-			renderedSlides: newRenderedSlides,
-			centerSlideRelativeIndex: newCenterSlideRelativeIndex,
-			slideInfoMap,
-			slidePerSide,
-			newRenderedSlides,
-			sortedSlideInfo,
-			centerPosition,
-			renderedSlidePerSide,
-		}
-	}
-	useEffect(() => {
-		const { renderedSlides, slideInfoMap, slidePerSide, sortedSlideInfo, centerPosition, renderedSlidePerSide } =
-			initializeProperties()
-		setRenderedSlides(renderedSlides)
+
+		setRenderedSlides(newRenderedSlides)
 		setSlideInfoMap(slideInfoMap)
-		setSortedSlideInfo(sortedSlideInfo)
 		setSlidePerSide(slidePerSide)
-		setCenterPosition(centerPosition)
 		setRenderedSlidePerSide(renderedSlidePerSide)
-	}, [])
+	}, [carouselWidth, currentVisibleDisplaySlide, maxVisibleSlide, slideWidth])
 
 	const calculateScaleAndOffsets = (slidePerSide: number) => {
 		const availableSpace = (carouselWidth - slideWidth) / 2
@@ -196,10 +173,8 @@ const HorizontalSlideShow: React.FC<HorizontalSlideShowProps> = ({
 			scales.push(scale)
 			scaledSlideWidths.push(slideWidth * scale)
 		}
-		console.log('scaledSlideWidths before slice', scaledSlideWidths)
 
 		let withoutCenterSlideWidths = scaledSlideWidths.slice(1)
-		console.log('includedSlideWidths', withoutCenterSlideWidths)
 		let fillingSpace = availableSpace
 		if (fadeDistance !== undefined) {
 			withoutCenterSlideWidths = scaledSlideWidths.slice(1, slidePerSide)
@@ -208,7 +183,6 @@ const HorizontalSlideShow: React.FC<HorizontalSlideShowProps> = ({
 
 		const totalSlideWidth = withoutCenterSlideWidths.reduce((a, b) => a + b, 0)
 		const offSetPercentage = totalSlideWidth ? fillingSpace / totalSlideWidth : 0
-		console.log('offSetPercentage', offSetPercentage, 'fillingSpace', fillingSpace, 'totalSlideWidth', totalSlideWidth)
 
 		const scaledOffsets = [0]
 		const offsets = [0]
@@ -216,11 +190,7 @@ const HorizontalSlideShow: React.FC<HorizontalSlideShowProps> = ({
 			const isCustomFade = fadeDistance !== undefined && slide === slidePerSide
 			const scale = scales[slide]
 			scaledOffsets[slide] = isCustomFade ? fadeDistance * availableSpace : slideWidth * scale * offSetPercentage
-			console.log('scaledOffsets[slide]', scaledOffsets[slide], 'scale', scale)
-
 			offsets[slide] = scaledOffsets[slide] + slideWidth * ((1 - scale) / 2)
-			console.log('offsets[slide]', offsets[slide])
-			console.log('slideWidth * ((1 - scale) / 2)', slideWidth * ((1 - scale) / 2))
 		}
 		return { offsets, scaledOffsets, scales }
 	}
@@ -261,16 +231,11 @@ const HorizontalSlideShow: React.FC<HorizontalSlideShowProps> = ({
 
 	const swipeTo = () => {}
 
-	const moveCarousel = (steps: number, disableSwipeRightState: boolean = false) => {
-		let newCenterDataIndex = 0
-
+	const moveCarousel = (steps: number) => {
 		const newSlides = renderedSlides.map((oldSlide) => {
 			const { slideIndex, dataIndex } = oldSlide
 			if (dataIndex === -1) return oldSlide
-			if (slideIndex === 0) newCenterDataIndex = modDataRange(dataIndex + steps)
-
 			const newSlideIndex = slideIndex + -steps
-
 			const slideInfo: any = safeGetSlideInfo(newSlideIndex)
 			return {
 				...oldSlide,
@@ -284,7 +249,6 @@ const HorizontalSlideShow: React.FC<HorizontalSlideShowProps> = ({
 		if (steps !== 0) {
 			const maxSlideIndex = steps > 0 ? slidePerSide : -slidePerSide
 			setAddedSlide(Math.abs(steps))
-
 			const insertionInfo = getInsertionInfo(steps)
 			let { newAddedSlideIndex } = insertionInfo
 			const { requireMoreSlide, updateCount, targetSlideIndex } = insertionInfo
@@ -321,14 +285,12 @@ const HorizontalSlideShow: React.FC<HorizontalSlideShowProps> = ({
 			}
 		}
 
-		setSwipeStarted(false)
 		setRenderedSlides(newSlides)
-		setSwipRight(disableSwipeRightState ? false : steps < 0 ? true : false)
 	}
 
 	const updateHeight = () => {
-		const slideItemImg = listContainerRef!.current?.children[0]?.children[0]
-		const slideItemInfo = listContainerRef!.current?.children[0]?.children[1]
+		const slideItemImg = listContainerRef!.current?.querySelector('.horizontal-slide-item-0')?.children[0]?.children[0]
+		const slideItemInfo = listContainerRef!.current?.querySelector('.horizontal-slide-item-0')?.children[0]?.children[1]
 		let slideItemHeightInfo = 0,
 			slideItemHeightImg = 0
 		if (slideItemImg) {
@@ -337,77 +299,74 @@ const HorizontalSlideShow: React.FC<HorizontalSlideShowProps> = ({
 		if (slideItemInfo) {
 			slideItemHeightInfo = parseInt(window.getComputedStyle(slideItemInfo! as Element).height)
 		}
+
 		setListHeight(slideItemHeightImg! + slideItemHeightInfo)
 	}
 
 	useEffect(() => {
 		if (renderedSlides) {
 			updateHeight()
+			setCurrentSlideCenter(renderedSlides.find(({ slideIndex }) => slideIndex === 0))
 		}
 	}, [renderedSlides])
 
+	useEffect(() => {
+		initializeProperties()
+	}, [initializeProperties])
+
 	return (
 		<div className='slide-show'>
-			<div className='slide-show__img--container'>
-				<ul
-					className='slide-show__img--container__list'
-					ref={listContainerRef}
-					style={{
-						width: carouselWidth,
-						height: listHeight,
-						position: 'relative',
-						overflow: 'hidden',
-						cursor: 'pointer',
-					}}>
-					{renderedSlides.map(({ opacity, slideIndex, dataIndex, position, scale, key, zIndex }) => {
-						const ID = dataIndex === -1 ? `hidden-${key}` : slideIndex
-						const zDuration = 450 * (swipRight ? 0.6 : 1)
-
-						const transition = swipeStarted
-							? 'none'
-							: customTransition || `all ${450}ms ease, z-index ${zDuration}ms ease`
-						const isCenterSlide = tempShift ? zIndex === maxZIndex : slideIndex === 0
-						return (
-							<div
-								key={key}
-								className={`horizontal-slide-item-${ID}`}
-								onClick={() => {
-									console.log('slideIndex', slideIndex)
-									moveCarousel(slideIndex)
-								}}
-								ref={listRef}
-								style={{
-									position: 'absolute',
-									display: 'flex',
-									left: `calc(50% - ${slideWidth / 2}px)`,
-									transform: `translateX(${position}px) scale(${scale})`,
-									width: slideWidth,
-									transition,
-									opacity,
-									zIndex,
-									height: listHeight,
-								}}>
-								{dataIndex !== -1 && (
-									<Component
-										dataIndex={dataIndex}
-										data={data}
-										slideIndex={slideIndex}
-										isCenterSlide={isCenterSlide}
-										swipeTo={swipeTo}
-									/>
-								)}
-							</div>
-						)
-					})}
-					{/* {images.map((img: ImageDataI, idx: number) => (
-						<li
-							key={idx}
-							className={`slide-show__img--container__list--item ${idx === currentImageIdx ? 'current--img' : ''}`}>
-							<img src={img.url} alt='' />
-						</li>
-					))} */}
-				</ul>
-			</div>
+			<ul
+				className='slide-show__img--container__list'
+				ref={listContainerRef}
+				style={{
+					width: carouselWidth,
+					height: listHeight + 300,
+					position: 'relative',
+					overflow: 'hidden',
+					cursor: 'pointer',
+				}}>
+				{renderedSlides.map(({ opacity, slideIndex, dataIndex, position, scale, key, zIndex }) => {
+					const ID = dataIndex === -1 ? `hidden-${key}` : slideIndex
+					const transition = customTransition || `all ${450}ms ease-in-out, z-index ${450}ms ease-in-out`
+					const isCenterSlide = slideIndex === 0
+					return (
+						<div
+							key={key}
+							className={`horizontal-slide-item-${ID}`}
+							onClick={() => {
+								console.log('slideIndex')
+								moveCarousel(slideIndex)
+							}}
+							style={{
+								position: 'absolute',
+								display: 'flex',
+								left: `calc(50% - ${slideWidth / 2}px)`,
+								transform: `translateX(${position}px) scale(${scale})`,
+								width: slideWidth,
+								transition,
+								opacity,
+								zIndex,
+								height: listHeight,
+							}}>
+							{dataIndex !== -1 && (
+								<Component
+									dataIndex={dataIndex}
+									data={data}
+									slideIndex={slideIndex}
+									isCenterSlide={isCenterSlide}
+									swipeTo={swipeTo}
+									zIndex={zIndex}
+								/>
+							)}
+						</div>
+					)
+				})}
+			</ul>
+			<Information
+				title={currentSlideCenter ? data[currentSlideCenter!['dataIndex']].title : ''}
+				items={currentSlideCenter ? data[currentSlideCenter!['dataIndex']].children : []}
+			/>
 		</div>
 	)
 }
