@@ -6,20 +6,21 @@ import BraveImg from '../../resources/images/braves.jpg'
 import BraveImg1 from '../../resources/images/braves.jpg'
 import BraveImg2 from '../../resources/images/braves.jpg'
 export interface ImageDataI {
-	url: string
+	cover: string
 	title: string
 }
 const images: ImageDataI[] = [
 	{
-		url: GoogleImg,
+		cover: GoogleImg,
 		title: 'google',
 	},
-	{ url: MozillaImg, title: 'mozilla' },
-	{ url: SafariImg, title: 'SafariImg' },
-	{ url: OperaImg, title: 'OperaImg' },
-	{ url: BraveImg, title: 'BraveImg' },
-	{ url: BraveImg1, title: 'BraveImg1' },
-	{ url: BraveImg2, title: 'BraveImg2' },
+	{ cover: MozillaImg, title: 'mozilla' },
+	{ cover: SafariImg, title: 'SafariImg' },
+	{ cover: OperaImg, title: 'OperaImg' },
+	{ cover: BraveImg, title: 'BraveImg' },
+	{ cover: BraveImg1, title: 'BraveImg1' },
+	{ cover: BraveImg2, title: 'BraveImg2' },
 ]
 
 export default images
+
