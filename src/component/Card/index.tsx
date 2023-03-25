@@ -1,24 +1,31 @@
 import React, { useEffect, useState } from 'react'
+import Information from './Information'
 
 const Card = React.memo(
 	function (props: any) {
 		const { data, dataIndex } = props
 		const [cover, setCover] = useState('')
+		const [items, setItems] = useState([])
+		const [title, setTitle] = useState('')
 
 		useEffect(() => {
-			if (data[dataIndex]) {
-				const { cover } = data[dataIndex]
+			if (data && data[dataIndex]) {
+				const { cover, children, title } = data[dataIndex]
 				setCover(cover)
+				setItems(children)
+				setTitle(title)
 			}
-		})
+		}, [])
+
 		return (
 			<div
 				style={{
 					width: '100%',
-					height: 64,
+					// height: 64,
 					userSelect: 'none',
+					position: 'relative',
 				}}
-				className='my-slide-component'>
+				className='slide-item-content'>
 				<img
 					style={{
 						height: '100%',
@@ -30,6 +37,7 @@ const Card = React.memo(
 					src={cover ?? ''}
 					alt='asds'
 				/>
+				{<Information title={title} items={items} />}
 			</div>
 		)
 	},

@@ -8,7 +8,7 @@ export interface RenderedSlideI {
 	zIndex: number
 }
 
-export interface staticSlideInfo {
+export interface StaticSlideInfoI {
 	position: number
 	scale: number
 	opacity: number
@@ -28,6 +28,6 @@ export interface staticSlideInfo {
 }
 
 export interface slideInfoMapI {
-	[key: string]: staticSlideInfo
+	[key: string]: StaticSlideInfoI
 }
 
